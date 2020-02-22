@@ -5,8 +5,8 @@ import java.util.*;
 
 public class Main {
     static Scanner scanner = new Scanner(System.in);
-    static double[][] generatorValues;
-    static int[] drawingValues;
+    static double[][] generatorValues;//the four functions and all values about them
+    static int[] drawingValues;//the multiplying of and adding to values
     static List<String> printHelp;
     static int timeToWait;
     static int totalIterations;
@@ -22,6 +22,7 @@ public class Main {
     public static void giveDefaultValues () {
         generatorValues = new double[4][8];
 
+        //setting default values - most are 0 except the percantage, which is 25%, and the color, which is green
         for (int i = 0; i < generatorValues.length; i++) {
             for (int j = 0; j < 6; j++) {
                 generatorValues[i][j] = 0.0;
@@ -30,12 +31,8 @@ public class Main {
             generatorValues[i][6] = 0.25;
             generatorValues[i][7] = 32768;
         }
-        /*generatorValues[0][7] = 32768;//
-        generatorValues[1][7] = 15859712;//
-        generatorValues[2][7] = 10788232;//
-        generatorValues[3][7] = 16719752;*///
 
-        drawingValues = new int[]{100, 200, 45, 500};
+        drawingValues = new int[]{100, 200, 45, 500};//sets values that are generally good for generating a reasonably-sized Barnsley Fern
 
         printHelp = new ArrayList<String>();
 
@@ -53,7 +50,8 @@ public class Main {
                 "(a,b,c,d,e,f,p,color) - if you input a value from 1 to 4 as function, " +
                 "you will only see the values of the function you chose");
         printHelp.add("change {function} {value}    -    change a specific value (a,b,c,d,e,f,p,color,widthOfX," +
-                "additionToX,widthOfY,subtractionFromY) of a specific function (1,2,3,4)");
+                "additionToX,widthOfY,subtractionFromY) of a specific function (1,2,3,4 or 0 if you are " +
+                "changing width of or addition to the X or Y coordinate)");
         printHelp.add("start    -    generate the Barnsley Fern " +
                 "through a number of iterations (if <= 0, there will be infinite iterations) while waiting certain time in milliseconds >= 0 between iterations " +
                 "- both are optional and are added to start in any direction in the following way: " +
@@ -146,7 +144,7 @@ public class Main {
     }
 
     public static void getValues (String[] command) {
-        if (command.length==1) {
+        if (command.length==1) {//in case there is no function specified
             for (int i = 0; i < generatorValues.length; i++) {
                 for (int j = 0; j < 7; j++) {
                     System.out.print(generatorValues[i][j]+" ");
@@ -154,7 +152,7 @@ public class Main {
                 System.out.println((int)generatorValues[i][7]);
             }
         }
-        else {
+        else {//in case a value is specified
             int indexOfFunction = Integer.parseInt(command[1])-1;
 
             for (int i = 0; i < 7; i++) {
@@ -168,7 +166,7 @@ public class Main {
         int i = Integer.parseInt(command[1])-1;
         int j = -1;
 
-        switch (command[2]) {
+        switch (command[2]) {//converts the value to be changed to the correct index
             case "a":
                 j = 0;
                 break;
@@ -209,16 +207,16 @@ public class Main {
 
         System.out.println("Write value of "+command[2]);
 
-        if (j<8) {
+        if (j<8) {//if the value to be changed is part of the generator values
             generatorValues[i][j] = Double.parseDouble(scanner.nextLine());
         }
-        else {
+        else {//if the value to be changed is part of the drawing values
             drawingValues[j-8] = Integer.parseInt(scanner.nextLine());
         }
     }
 
     public static void valueCombinations () {
-        try {
+        try {//prints everything from the BarnsleyFerns file (all Ferns)
             FileReader reader = new FileReader("BarnsleyFerns");
             BufferedReader bufferedReader = new BufferedReader(reader);
 
@@ -245,8 +243,8 @@ public class Main {
 
             String line = bufferedReader.readLine();
 
-            while (line != null) {
-                if (line.equals(nameOfValueCombination)) {
+            while (line != null) {//reads lines until it reaches the name of the Fern we are looking for
+                if (line.equals(nameOfValueCombination)) {//if the Fern is found, we skip its name
                     line = bufferedReader.readLine();
                     break;
                 }
@@ -254,14 +252,14 @@ public class Main {
             }
 
             if (line!=null) {
-                for (int i = 0; i < 4; i++) {
+                for (int i = 0; i < 4; i++) {//copies the values of each line
                     double[] valuesToPaste = Arrays.
                             stream(line.
                                     split(" ")).
                             mapToDouble(Double::
                                     parseDouble).
                             toArray();
-                    for (int j = 0; j < 7; j++) {
+                    for (int j = 0; j < 7; j++) {//setting the current values to those of the current value line
                         generatorValues[i][j] = valuesToPaste[j];
                     }
 
@@ -269,7 +267,7 @@ public class Main {
                 }
 
                 if (line!=null) {
-                    if (line.equals("colorIsSpecified")) {
+                    if (line.equals("colorIsSpecified")) {//if color is specified, there is a line that says it right after the values of the functions
                         line = bufferedReader.readLine();
 
                         int[] colors = Arrays.
@@ -278,7 +276,7 @@ public class Main {
                                 mapToInt(Integer::
                                         parseInt).
                                 toArray();
-                        for (int i = 0; i < 4; i++) {
+                        for (int i = 0; i < 4; i++) {//sets the current color to that of the read line
                             generatorValues[i][7] = colors[i];
                         }
                     }
@@ -297,27 +295,27 @@ public class Main {
             FileWriter writer = new FileWriter("BarnsleyFerns", true);
             BufferedWriter bufferedWriter = new BufferedWriter(writer);
 
-            bufferedWriter.write(command[1]);
+            bufferedWriter.write(command[1]);//writes the chosen name of the Barnsley Fern
             bufferedWriter.newLine();
 
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 4; i++) {//writes the values of the functions with eachfunction being its own line
                 for (int j = 0; j < generatorValues[i].length-2; j++) {
                     bufferedWriter.write(generatorValues[i][j]+" ");
                 }
 
-                bufferedWriter.write(String.valueOf(generatorValues[i][6]));
+                bufferedWriter.write(String.valueOf(generatorValues[i][6]));//the last value is written like that so there is no space and therefore no need to remove an empty element when reading the array
                 bufferedWriter.newLine();
             }
 
             if (command.length==3 ) {
-                if (command[2].equals("y")) {
+                if (command[2].equals("y")) {//if the color should be specified, the colors of the four functions are written on one line
                     bufferedWriter.write("colorIsSpecified");
                     bufferedWriter.newLine();
                     for (int i = 0; i < 3; i++) {
                         bufferedWriter.write(generatorValues[i][7] + " ");
                     }
 
-                    bufferedWriter.write(String.valueOf(generatorValues[3][7]));
+                    bufferedWriter.write(String.valueOf(generatorValues[3][7]));//the last value is written like that so there is no space and therefore no need to remove an empty element when reading the array
                     bufferedWriter.newLine();
                 }
             }
@@ -341,7 +339,7 @@ public class Main {
             String nameOfValueCombinationToRemove = command[1];
 
             while (line!=null) {
-                if (line.equals(nameOfValueCombinationToRemove)) {
+                if (line.equals(nameOfValueCombinationToRemove)) {//if we find the name of the Barnsley Fern to be destroyed, we skip copying the next line
                     bufferedReader.readLine();
                     break;
                 }
@@ -352,11 +350,13 @@ public class Main {
             }
 
             if (line!=null) {
-                for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < 3; i++) {//skipping the three remaining function values
                     bufferedReader.readLine();
                 }
 
-                if (bufferedReader.readLine().equals("colorIsSpecified")) {
+                if (bufferedReader.readLine().equals("colorIsSpecified")) {//the line after the values is skipped and,
+                    //if it is colorIsSpecified, the next two (the one with the values of color and the empty line);
+                    //if the next line is not colorIsSpecified(then it is an empty line), it's skipped in the if itsef
                     for (int i = 0; i < 2; i++) {
                         bufferedReader.readLine();
                     }
@@ -364,7 +364,7 @@ public class Main {
             }
 
             line = bufferedReader.readLine();
-            while (line!=null) {
+            while (line!=null) {//the remaining lines are copied
                 bufferedWriter.write(line);
                 bufferedWriter.newLine();
                 line = bufferedReader.readLine();
@@ -372,6 +372,7 @@ public class Main {
 
             bufferedWriter.close();
 
+            //the temporary files becomes the new BarnsleyFerns file
             File fileToDelete = new File("BarnsleyFerns");
             File fileToRename = new File("temporary");
 
